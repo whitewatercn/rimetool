@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+recursive-include rimetool/rimetool_gui/templates *
+recursive-include rimetool/rimetool_core/epub *
+include rimetool/rimetool_gui/gui_config.py
+include rimetool/rimetool_gui/new_app.py

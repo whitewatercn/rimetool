@@ -157,7 +157,7 @@
     <script>
         // 定义GUI版本变量
         const GUI_VERSION = '1.2.1';
-        const BASE_URL = 'http://127.0.0.1:5001';
+        const BASE_URL = 'http://127.0.0.1:5023';
         
         function log(message, type = 'info') {
             console.log(`[${type.toUpperCase()}] ${message}`);
@@ -539,11 +539,11 @@
                     if (err.name === 'AbortError') {
                         errorMsg = '请求超时（10分钟），服务器处理时间过长';
                     } else if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
-                        errorMsg = '无法连接到服务器(http://127.0.0.1:5001)，请检查服务器是否运行';
+                        errorMsg = '无法连接到服务器(http://127.0.0.1:5023)，请检查服务器是否运行';
                         // 尝试提供更多调试信息
                         log('尝试连接服务器失败，请确保：', 'error');
                         log('1. Python服务器正在运行 (python new_app.py)', 'error');
-                        log('2. 服务器正在监听5001端口', 'error');
+                        log('2. 服务器正在监听5023端口', 'error');
                         log('3. 没有防火墙阻止连接', 'error');
                         log('4. 浏览器允许跨域请求', 'error');
                     }

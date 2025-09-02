@@ -59,14 +59,14 @@ rimetool --input-path 你的文件路径 --tool vcf
 python -m rimetool.rimetool_gui.new_app
 ```
 
-### 🔗 Docker 部署
+### 🔗 Docker 部署（暂不可用)
 
 ```bash
 # 拉取镜像
 docker pull your-registry/rimetool:latest
 
 # 运行容器
-docker run -p 5001:5001 your-registry/rimetool:latest
+docker run -p 5023:5023 your-registry/rimetool:latest
 ```
 
 ## 主要功能

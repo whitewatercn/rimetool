@@ -61,6 +61,7 @@ def get_args_parser(add_help=True):
         parser.add_argument('--host', default='0.0.0.0', help='服务器主机地址 (默认: 0.0.0.0)')
         parser.add_argument('--port', default=5023, type=int, help='服务器端口 (默认: 5023)')
         parser.add_argument('--debug', action='store_true', help='启用调试模式')
+        parser.add_argument('--log-dir', help='日志文件目录 (默认: 当前目录/rimetool/logs)')
         return parser
     else:
         # 具体功能的实现
@@ -97,6 +98,14 @@ def main(output_files=None, is_web=False):
             env['FLASK_PORT'] = str(args.port)
             if args.debug:
                 env['FLASK_DEBUG'] = '1'
+            
+            # 设置日志目录
+            if args.log_dir:
+                env['RIMETOOL_LOG_DIR'] = args.log_dir
+            else:
+                # 默认在当前工作目录创建 rimetool/logs
+                default_log_dir = os.path.join(os.getcwd(), 'rimetool', 'logs')
+                env['RIMETOOL_LOG_DIR'] = default_log_dir
             
             # 运行 new_app.py
             subprocess.run([sys.executable, new_app_path], env=env, cwd=current_dir)

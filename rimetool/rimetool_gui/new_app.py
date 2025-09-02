@@ -30,7 +30,13 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 CORS(app, origins="*") 
 
 # 配置详细的日志
-log_dir = os.path.join(os.path.dirname(__file__), 'logs')
+# 从环境变量获取日志目录，如果没有设置则使用默认位置
+log_dir = os.environ.get('RIMETOOL_LOG_DIR')
+if log_dir is None:
+    # 如果没有环境变量，使用当前工作目录下的 rimetool/logs
+    log_dir = os.path.join(os.getcwd(), 'rimetool', 'logs')
+
+# 确保日志目录存在
 os.makedirs(log_dir, exist_ok=True)
 
 # 生成带时间戳的日志文件名
@@ -71,6 +77,8 @@ logger = logging.getLogger(__name__)
 logger.info(f"Python版本: {sys.version}")
 logger.info(f"操作系统: {os.name}, {sys.platform}")
 logger.info(f"当前工作目录: {os.getcwd()}")
+logger.info(f"日志目录: {log_dir}")
+logger.info(f"日志文件: {log_file}")
 
 # 设置环境变量，帮助导入模块
 current_dir = os.path.dirname(os.path.abspath(__file__))

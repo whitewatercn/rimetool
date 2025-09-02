@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rimetool"
-version = "2.1.2"
+version = "2.1.3"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -22,6 +22,9 @@ dependencies = [
 
 [project.scripts]
 rimetool = "rimetool.main:main"
+
+[tool.setuptools.package-data]
+"rimetool.rimetool_gui" = ["templates/*", "templates/**/*"]
 
 #备注：以下代码为修改至清华源下载pip包，如果不需要可以注释掉
 [[index]]

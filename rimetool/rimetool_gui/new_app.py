@@ -6,6 +6,7 @@ import sys
 import json
 import zipfile  # 确保在顶部导入
 import shutil
+import glob  # 用于日志文件管理
 from flask_cors import CORS  # 导入 CORS
 from datetime import datetime, time
 from io import BytesIO
@@ -31,7 +32,30 @@ CORS(app, origins="*")
 # 配置详细的日志
 log_dir = os.path.join(os.path.dirname(__file__), 'logs')
 os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, 'rimetool_gui.log')
+
+# 生成带时间戳的日志文件名
+timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+log_file = os.path.join(log_dir, f'rimetool_gui_{timestamp}.log')
+
+# 清理旧日志文件，保留最新的50个
+def cleanup_old_logs(log_directory, max_files=50):
+    pattern = os.path.join(log_directory, 'rimetool_gui_*.log')
+    log_files = glob.glob(pattern)
+    
+    if len(log_files) > max_files:
+        # 按修改时间排序，最新的在前
+        log_files.sort(key=os.path.getmtime, reverse=True)
+        # 删除超出数量的旧文件
+        files_to_delete = log_files[max_files:]
+        for file_path in files_to_delete:
+            try:
+                os.remove(file_path)
+                print(f"已删除旧日志文件: {os.path.basename(file_path)}")
+            except Exception as e:
+                print(f"删除日志文件失败 {file_path}: {e}")
+
+# 执行日志清理
+cleanup_old_logs(log_dir, 20)
 
 logging.basicConfig(
     level=logging.DEBUG,  # 改为 DEBUG 级别以获取更多信息

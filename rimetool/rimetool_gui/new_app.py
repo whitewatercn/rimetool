@@ -6,25 +6,68 @@ import sys
 import json
 import zipfile  # 确保在顶部导入
 import shutil
-from rimetool.main import main_with_args as rimetool_main
+import glob  # 用于日志文件管理
 from flask_cors import CORS  # 导入 CORS
 from datetime import datetime, time
 from io import BytesIO
-from gui_config import GUIConfig  # Import the configuration class
+
+# 导入配置文件
+try:
+    from .gui_config import GUIConfig
+except ImportError:
+    from gui_config import GUIConfig
 """
 使用方法：运行本文件，然后打开new_index.html，右键点击 Open in Browser 预览选项
 """
-app = Flask(__name__, static_folder='templates')
+
+# 获取模板文件夹的绝对路径
+template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+static_dir = template_dir  # 将static也指向templates目录
+
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 # 启用 CORS
 # CORS(app, origins="http://localhost:5500")  # 允许来自 http://localhost:5500 的请求
 CORS(app, origins="*") 
 
 # 配置详细的日志
+# 从环境变量获取日志目录，如果没有设置则使用默认位置
+log_dir = os.environ.get('RIMETOOL_LOG_DIR')
+if log_dir is None:
+    # 如果没有环境变量，使用当前工作目录下的 rimetool/logs
+    log_dir = os.path.join(os.getcwd(), 'rimetool', 'logs')
+
+# 确保日志目录存在
+os.makedirs(log_dir, exist_ok=True)
+
+# 生成带时间戳的日志文件名
+timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+log_file = os.path.join(log_dir, f'rimetool_gui_{timestamp}.log')
+
+# 清理旧日志文件，保留最新的50个
+def cleanup_old_logs(log_directory, max_files=50):
+    pattern = os.path.join(log_directory, 'rimetool_gui_*.log')
+    log_files = glob.glob(pattern)
+    
+    if len(log_files) > max_files:
+        # 按修改时间排序，最新的在前
+        log_files.sort(key=os.path.getmtime, reverse=True)
+        # 删除超出数量的旧文件
+        files_to_delete = log_files[max_files:]
+        for file_path in files_to_delete:
+            try:
+                os.remove(file_path)
+                print(f"已删除旧日志文件: {os.path.basename(file_path)}")
+            except Exception as e:
+                print(f"删除日志文件失败 {file_path}: {e}")
+
+# 执行日志清理
+cleanup_old_logs(log_dir, 20)
+
 logging.basicConfig(
     level=logging.DEBUG,  # 改为 DEBUG 级别以获取更多信息
     format='%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
     handlers=[
-        logging.FileHandler(r"rimetool/rimetool_gui/rimetool_gui.log"),
+        logging.FileHandler(log_file),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -34,6 +77,8 @@ logger = logging.getLogger(__name__)
 logger.info(f"Python版本: {sys.version}")
 logger.info(f"操作系统: {os.name}, {sys.platform}")
 logger.info(f"当前工作目录: {os.getcwd()}")
+logger.info(f"日志目录: {log_dir}")
+logger.info(f"日志文件: {log_file}")
 
 # 设置环境变量，帮助导入模块
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -49,15 +94,23 @@ try:
 except ImportError as e:
     logger.error(f"导入 rimetool_main 失败: {str(e)}\n{traceback.format_exc()}")
     try:
-        # 尝试不同的导入路径
-        sys.path.insert(0, os.path.dirname(current_dir))
-        from main import main_with_args as rimetool_main
-        logger.info("使用备用路径成功导入 rimetool_main")
+        # 尝试相对导入
+        from ..main import main_with_args as rimetool_main
+        logger.info("使用相对导入成功导入 rimetool_main")
     except ImportError as e2:
-        logger.error(f"使用备用路径导入 rimetool_main 也失败: {str(e2)}\n{traceback.format_exc()}")
-        def rimetool_main(args):
-            logger.error(f"无法导入真正的 rimetool_main，使用模拟函数。参数: {args}")
-            return "导入模块失败，无法处理文件"
+        logger.error(f"使用相对导入 rimetool_main 也失败: {str(e2)}")
+        try:
+            # 尝试添加父目录到路径
+            parent_parent_dir = os.path.dirname(parent_dir)
+            if parent_parent_dir not in sys.path:
+                sys.path.insert(0, parent_parent_dir)
+            from rimetool.main import main_with_args as rimetool_main
+            logger.info("使用父父目录路径成功导入 rimetool_main")
+        except ImportError as e3:
+            logger.error(f"最终导入 rimetool_main 失败: {str(e3)}\n{traceback.format_exc()}")
+            def rimetool_main(args):
+                logger.error(f"无法导入真正的 rimetool_main，使用模拟函数。参数: {args}")
+                return "导入模块失败，无法处理文件"
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 OUTPUT_FOLDER = os.path.join(os.path.dirname(__file__), 'outputs')
@@ -358,9 +411,11 @@ def get_website_config():
 
 if __name__ == '__main__':
     logger.info("启动Flask应用")
-    # 在生产环境中运行，不使用自动重启
-    app.run(debug=False, host='0.0.0.0', port=5001)
     
-    # 或者，如果您需要调试功能但不需要自动重启：
-    # from werkzeug.serving import run_simple
-    # run_simple('0.0.0.0', 5001, app, use_reloader=False, use_debugger=True)
+    # 从环境变量读取配置
+    host = os.environ.get('FLASK_HOST', '0.0.0.0')
+    port = int(os.environ.get('FLASK_PORT', 5023))
+    debug = os.environ.get('FLASK_DEBUG', '0') == '1'
+    
+    # 启动Flask应用
+    app.run(debug=debug, host=host, port=port)

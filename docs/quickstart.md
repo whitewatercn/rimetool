@@ -92,7 +92,7 @@ rimetool --input-path book.epub --tool epub
 python -m rimetool.rimetool_gui.new_app
 ```
 
-然后在浏览器中访问 `http://localhost:5001`。
+然后在浏览器中访问 `http://localhost:5023`。
 
 ### Web 界面功能
 

@@ -59,14 +59,14 @@ rimetool --input-path 你的文件路径 --tool vcf
 python -m rimetool.rimetool_gui.new_app
 ```
 
-### 🔗 Docker 部署
+### 🔗 Docker 部署（暂不可用)
 
 ```bash
 # 拉取镜像
 docker pull your-registry/rimetool:latest
 
 # 运行容器
-docker run -p 5001:5001 your-registry/rimetool:latest
+docker run -p 5023:5023 your-registry/rimetool:latest
 ```
 
 ## 主要功能
@@ -102,5 +102,5 @@ rimetool --input-path book.epub --tool epub
 
 <div style="text-align: center; margin: 2rem 0;">
   <p>如果这个项目对你有帮助，请给我们一个 ⭐</p>
-  <p><a href="https://github.com/B-Beginner/rimetool">GitHub 仓库</a> | <a href="/quickstart">快速上手</a> | <a href="/api">API 文档</a></p>
+  <p><a href="https://github.com/B-Beginner/rimetool">GitHub 仓库</a> | <a href="/quickstart">快速上手</a> | <a href="/api">API 文档</a>| <a href="/development">开发部署</a></p>
 </div>

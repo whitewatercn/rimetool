@@ -37,7 +37,7 @@ pip install -e .
 docker pull your-registry/rimetool:latest
 
 # 运行容器
-docker run -d -p 5001:5001 --name rimetool your-registry/rimetool:latest
+docker run -d -p 5023:5023 --name rimetool your-registry/rimetool:latest
 ```
 
 或者从源码构建：
@@ -51,7 +51,7 @@ cd rimetool
 docker build -t rimetool .
 
 # 运行容器
-docker run -d -p 5001:5001 --name rimetool rimetool
+docker run -d -p 5023:5023 --name rimetool rimetool
 ```
 
 ## 验证安装

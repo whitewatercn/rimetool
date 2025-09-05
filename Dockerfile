@@ -10,6 +10,6 @@ RUN pip install -e .
 # Copy all remaining source files
 COPY . .
 # Expose application port (adjust as needed)
-EXPOSE 5001
+EXPOSE 5023
 # Start the application with the designated entry point
 CMD ["python", "rimetool/rimetool_gui/new_app.py"]

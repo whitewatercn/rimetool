@@ -2,8 +2,15 @@ import os
 import re
 import jieba
 from pypinyin import lazy_pinyin
-from datetime import datetime
-from .encoding_test import detect_file_encoding
+from datetime import 		# 对分割后的每个部分进行处理，按出现次数从高到低排序
+		for segment, count in sorted(short_segments_count.items(), key=lambda x: x[1], reverse=True):
+			new_line = segment  # 原文保留标点
+			# 拼音部分去除标点
+			no_punct = re.sub(r'[，。！？；：、""''《》（）\[\]{}\-\—\.,!?;:]+', '', new_line)
+			pinyin_line = roman_to_chinese(no_punct)
+			pinyin = ' '.join(lazy_pinyin(pinyin_line))
+			new_line_with_pinyin = new_line + '\t' + pinyin + '\t' + str(count) + '\n'
+			outfile.write(new_line_with_pinyin)from .encoding_test import detect_file_encoding
 from .roman_to_chinese import roman_to_chinese
 
 def contains_chinese(text):
@@ -32,10 +39,10 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 	# 完整的输出文件（包含句子和词语）
 	full_output_file = os.path.join(output_path, f'simple_chinese_output_{current_time}.full.dict.yaml')
 	
-	# 用于存储分割后的短句内容
-	short_segments_content = []
-	# 用于存储分割后的长句内容
-	long_segments_content = []
+	# 用于存储分割后的短句内容及其计数
+	short_segments_count = {}
+	# 用于存储分割后的长句内容及其计数
+	long_segments_count = {}
 	# 用于存储原始行内容，供jieba分词使用
 	original_lines = []
 	
@@ -57,13 +64,21 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 			short_segments = re.split(r'[，。？：]+', original_line)
 			for segment in short_segments:
 				if segment.strip():
-					short_segments_content.append(segment.strip())
+					segment_clean = segment.strip()
+					if segment_clean in short_segments_count:
+						short_segments_count[segment_clean] += 1
+					else:
+						short_segments_count[segment_clean] = 1
 
 			# 只用句号分割成长句（long_sentence）
 			long_segments = re.split(r'[。]+', original_line)
 			for segment in long_segments:
 				if segment.strip():
-					long_segments_content.append(segment.strip())
+					segment_clean = segment.strip()
+					if segment_clean in long_segments_count:
+						long_segments_count[segment_clean] += 1
+					else:
+						long_segments_count[segment_clean] = 1
 	
 	# 生成短句子级别的词典文件（short_sentence）
 	with open(short_sentence_output_file, 'w', encoding='utf-8') as outfile:

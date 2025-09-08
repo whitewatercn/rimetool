@@ -215,9 +215,9 @@ def process_file():
         args = ['--input-path', input_path, '--output-path', output_path, '--tool', tool]
         if mode:
             args.extend(['--mode', mode])
-        # 如果上传了jieba分词库，添加参数
+        # 如果上传了jieba分词库，添加参数 (使用连字符格式)
         if 'jieba_dict_path' in locals() and jieba_dict_path:
-            args.extend(['--jieba_dict', jieba_dict_path])
+            args.extend(['--jieba-dict', jieba_dict_path])
         
         logger.info(f"执行命令参数: {args}")
         

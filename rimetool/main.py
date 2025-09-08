@@ -53,7 +53,7 @@ def get_args_parser(add_help=True):
         parser.add_argument('--input-path', '-i', required=True, type=str)
         parser.add_argument('--output-path', '-o', default='./rimetool_output', type=str)
         parser.add_argument('--tool', '-t', required=True, choices=['vcf','simple-english','se','simple-chinese','sc','tosougou','hello'], type=str)
-        parser.add_argument('--jieba-dict','-jd' required=False, type=str, help='jieba自定义分词词典路径（仅simple-chinese/sc有效）')
+        parser.add_argument('--jieba-dict','-jd', required=False, type=str, help='jieba自定义分词词典路径（仅simple-chinese/sc有效）')
         # parser.add_argument('--mode', '-m', required=False, choices=list(mode_choices.keys()))
         return parser
 

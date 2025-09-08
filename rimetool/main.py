@@ -28,20 +28,10 @@ help_text = """
 | --tool simple-english | 将单个词（如hello）或单个词组（如hello world）文件（.txt）导出为rime词库 | simple-english可简化为se |
 | --tool simple-chinese | 将单个中文词组（如你好）文件（.txt）导出为rime词库                    | simple-chinese可简化为sc |
 | --tool tosougou       | 将rime词库导出为搜狗txt词库                                |                      |
-| --tool epub           | epub相关功能，需指定--mode参数                             |                      |
-
-# epub模式说明（已停用）:
-
-# | 参数       | 模式                | 说明               |
-# | -------- | ----------------- | ---------------- |
-# | --mode 1 | epub_to_txt       | 将EPUB转换为纯文本      |
-# | --mode 2 | txt_to_short_long | 将文本转换为短句和长句      |
-# | --mode 3 | txt_to_rime       | 将文本转换为rime格式     |
-# | --mode 4 | epub_to_rime      | 完整的EPUB到rime转换流程 |
 
 """
 
-# 定义模式映射
+# 定义模式映射 (EPUB功能已注销，不再需要模式)
 mode_choices = {}
 
 

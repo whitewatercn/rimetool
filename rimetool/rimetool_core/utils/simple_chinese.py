@@ -1,4 +1,5 @@
 import os
+import re
 from pypinyin import lazy_pinyin
 from datetime import datetime
 from .encoding_test import detect_file_encoding
@@ -22,14 +23,29 @@ def main(input_file, output_path, is_web=False):
 
 		for line in infile:
 			content = line
+			# 如果line是空白，就删除（跳过）
+			if not content.strip():
+				continue
 			words = content.rstrip('\n').split('\t')
-			new_line = words[0]
-			pinyin_line = roman_to_chinese(new_line) # 将罗马转换为中文
-			pinyin_line = pinyin_line.replace('-', '')  # 删除所有的 '-'
-			pinyin = ' '.join(lazy_pinyin(pinyin_line))
-			# 在行的内容后面加一个tab，然后加上它的拼音，再加一个tab，然后加上数字1
-			new_line_with_pinyin = new_line + '\t' + pinyin + '\t1\n'
-			outfile.write(new_line_with_pinyin)
+			original_line = words[0]
+			
+			# 通过标点符号分割成短的句子
+			# 使用常见的中文和英文标点符号进行分割
+			segments = re.split(r'[-，。！？；：、\s\n,.!?;:\s]+', original_line)
+			
+			# 对分割后的每个部分进行处理
+			for segment in segments:
+				# 跳过空的分割片段
+				if not segment.strip():
+					continue
+				
+				new_line = segment.strip()
+				pinyin_line = roman_to_chinese(new_line) # 将罗马转换为中文
+				# pinyin_line = pinyin_line.replace('-', '')  # 删除所有的 '-'
+				pinyin = ' '.join(lazy_pinyin(pinyin_line))
+				# 在行的内容后面加一个tab，然后加上它的拼音，再加一个tab，然后加上数字1
+				new_line_with_pinyin = new_line + '\t' + pinyin + '\t1\n'
+				outfile.write(new_line_with_pinyin)
 		print(f"已生成文件 {os.path.abspath(outfile.name)}")
 	
 	# 返回文件名，用于web下载

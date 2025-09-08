@@ -87,7 +87,7 @@
 
     <!-- 文件输入部分 -->
     <div class="bg-card p-6 rounded-lg shadow-lg form-container mb-4">
-        <h2 class="text-xl font-bold mb-4">非 EPUB 文件输入</h2>
+        <h2 class="text-xl font-bold mb-4">文件输入</h2>
         <label for="file" class="block font-bold mb-2">选择文件：</label>
         <label for="file" class="file-label">📂 选择文件 </label>
         <input type="file" id="file" required class="border border-border rounded p-2 mb-4 w-full"  />
@@ -108,50 +108,12 @@
             class="bg-primary text-primary-foreground  rounded p-2 w-full transition duration-300">处理文件</button>
     </div>
 
-    <!-- EPUB 文件夹输入部分（选项 1 和 4） -->
-    <div class="bg-card p-6 rounded-lg shadow-lg form-container mb-4">
-        <h2 class="text-xl font-bold mb-4">EPUB ZIP 文件输入 - 转 txt 或 rime</h2>
-        <label for="folder-1-4" class="block font-bold mb-2">选择 EPUB 的 ZIP 格式文件（强烈建议 ZIP 中第一层就有 META-INF 文件夹）：</label>
-        <label for="folder-1-4" class="file-label">📂 选择文件 </label>
-        <input type="file" id="folder-1-4" required class="border border-border rounded p-2 mb-4 w-full" accept=".zip" />
-        <input type="text" id="folder-path-1-4" class="border border-border rounded p-2 mb-4 w-full" placeholder="未选择文件" readonly />
-
-        <label for="output-folder-1-4" class="block font-bold mb-2">选择输出文件夹：（本地运行可选，服务器运行将使用服务器默认路径）</label>
-        <label for="output-folder-1-4" class="file-label">📂 选择文件夹 </label>
-        <input type="file" id="output-folder-1-4" class="border border-border rounded p-2 mb-4 w-full" webkitdirectory directory />
-        <input type="text" id="output-folder-path-1-4" class="border border-border rounded p-2 mb-4 w-full" placeholder="未选择输出文件夹（将使用默认路径）" readonly />
-
-        <label for="mode-1-4" class="block font-bold mb-2">模式选择：</label>
-        <select id="mode-1-4" class="border border-border rounded p-2 mb-4 w-full">
-            <option value="epub_to_txt">1. epub_to_txt - 将 EPUB 转换为纯文本</option>
-            <option value="epub_to_rime">4. epub_to_rime - 完整的 EPUB 到 rime 转换流程</option>
-        </select>
-
-        <button onclick="processFile('folder-1-4')"
-            class="bg-primary text-primary-foreground  rounded p-2 w-full transition duration-300">处理文件</button>
-    </div>
-
-    <!-- EPUB 文件输入部分（选项 2 和 3） -->
-    <div class="bg-card p-6 rounded-lg shadow-lg form-container">
-        <h2 class="text-xl font-bold mb-4">EPUB 之 txt 转长短句，或 txt 转 rime</h2>
-        <label for="file-2-3" class="block font-bold mb-2">选择 txt 文件：</label>
-        <label for="file-2-3" class="file-label">📂 选择文件 </label>
-        <input type="file" id="file-2-3" required class="border border-border rounded p-2 mb-4 w-full"  />
-        <input type="text" id="file-path-2-3" class="border border-border rounded p-2 mb-4 w-full" placeholder="未选择文件" readonly />
-
-        <label for="output-folder-2-3" class="block font-bold mb-2">选择输出文件夹：（可选，不选择将使用服务器默认路径）</label>
-        <label for="output-folder-2-3" class="file-label">📂 选择文件夹 </label>
-        <input type="file" id="output-folder-2-3" class="border border-border rounded p-2 mb-4 w-full" webkitdirectory directory />
-        <input type="text" id="output-folder-path-2-3" class="border border-border rounded p-2 mb-4 w-full" placeholder="未选择输出文件夹（将使用默认路径）" readonly />
-
-        <label for="mode-2-3" class="block font-bold mb-2">模式选择：</label>
-        <select id="mode-2-3" class="border border-border rounded p-2 mb-4 w-full">
-            <option value="txt_to_short_long">2. txt_to_short_long - 将文本转换为短句和长句</option>
-            <option value="txt_to_rime">3. txt_to_rime - 将文本转换为 rime 格式</option>
-        </select>
-
-        <button onclick="processFile('file-2-3')"
-            class="bg-primary text-primary-foreground  rounded p-2 w-full transition duration-300">处理文件</button>
+    <!-- EPUB功能已注销的说明 -->
+    <div class="bg-yellow-50 border border-yellow-300 p-4 rounded mb-4 rounded-lg shadow-lg">
+        <h3 class="font-semibold mb-2 text-yellow-800">📢 功能说明</h3>
+        <p class="text-yellow-700">
+            EPUB 相关功能已注销，目前支持的功能包括：VCF联系人转换、简单英文/中文词库转换、搜狗词库转换等。
+        </p>
     </div>
 
     <script>
@@ -242,160 +204,49 @@
             }
         });
 
-        // ZIP 文件选择事件（选项 1 和 4）
-        document.getElementById('folder-1-4').addEventListener('change', function () {
-            const filePathInput = document.getElementById('folder-path-1-4');
-            if (this.files.length > 0) {
-                const fileName = this.files[0].name;
-                if (fileName.toLowerCase().endsWith('.zip')) {
-                    filePathInput.value = fileName;
-                    log(`已选择 ZIP 文件: ${fileName}`, 'info');
-                } else {
-                    filePathInput.value = '请选择 ZIP 文件';
-                    log('请选择 ZIP 文件', 'error');
-                    this.value = ''; // 清空选择
-                }
-            } else {
-                filePathInput.value = '未选择文件';
-            }
-        });
-
-        // 输出文件夹选择事件（选项 1 和 4）
-        document.getElementById('output-folder-1-4').addEventListener('change', function () {
-            const outputFolderPathInput = document.getElementById('output-folder-path-1-4');
-            if (this.files.length > 0) {
-                const firstFile = this.files[0];
-                const folderPath = firstFile.webkitRelativePath.split('/')[0];
-                outputFolderPathInput.value = folderPath;
-            } else {
-                outputFolderPathInput.value = '未选择输出文件夹（将使用默认路径）';
-            }
-        });
-
-        // 文件选择事件（选项 2 和 3）
-        document.getElementById('file-2-3').addEventListener('change', function () {
-            const filePathInput = document.getElementById('file-path-2-3');
-            if (this.files.length > 0) {
-                filePathInput.value = this.files[0].name;
-            } else {
-                filePathInput.value = '未选择文件';
-            }
-        });
-
-        // 输出文件夹选择事件（选项 2 和 3）
-        document.getElementById('output-folder-2-3').addEventListener('change', function () {
-            const outputFolderPathInput = document.getElementById('output-folder-path-2-3');
-            if (this.files.length > 0) {
-                const firstFile = this.files[0];
-                const folderPath = firstFile.webkitRelativePath.split('/')[0];
-                outputFolderPathInput.value = folderPath;
-            } else {
-                outputFolderPathInput.value = '未选择输出文件夹（将使用默认路径）';
-            }
-        });
-
         function processFile(type) {
             log('开始处理');
 
-            let fileOrFolderInput, toolOrModeInput, pathInput, outputFolderInput, outputFolderPathInput;
-            let toolOrMode, outputFolderPath;
-
-            if (type === 'file') {
-                fileOrFolderInput = document.getElementById('file');
-                toolOrModeInput = document.getElementById('tool-file');
-                pathInput = document.getElementById('file-path');
-            } else if (type === 'folder-1-4') {
-                fileOrFolderInput = document.getElementById('folder-1-4');
-                toolOrModeInput = document.getElementById('mode-1-4');
-                pathInput = document.getElementById('folder-path-1-4');
-                outputFolderInput = document.getElementById('output-folder-1-4');
-                outputFolderPathInput = document.getElementById('output-folder-path-1-4');
-            } else if (type === 'file-2-3') {
-                fileOrFolderInput = document.getElementById('file-2-3');
-                toolOrModeInput = document.getElementById('mode-2-3');
-                pathInput = document.getElementById('file-path-2-3');
-                outputFolderInput = document.getElementById('output-folder-2-3');
-                outputFolderPathInput = document.getElementById('output-folder-path-2-3');
+            // 现在只支持单个文件处理
+            if (type !== 'file') {
+                log('EPUB功能已注销，请使用文件输入方式', 'error');
+                const error = document.getElementById('error');
+                error.textContent = 'EPUB功能已注销，请使用文件输入方式';
+                error.style.display = 'block';
+                return;
             }
 
-            // const loading = document.getElementById('loading');
+            const fileInput = document.getElementById('file');
+            const toolInput = document.getElementById('tool-file');
+            const pathInput = document.getElementById('file-path');
             const error = document.getElementById('error');
-            // const success = document.getElementById('success');
 
-            // 检查文件或文件夹
-            if ((type === 'file' && fileOrFolderInput.files.length === 0) ||
-                (type === 'folder-1-4' && fileOrFolderInput.files.length === 0) ||
-                (type === 'file-2-3' && fileOrFolderInput.files.length === 0)) {
-                const errorMsg = type === 'file' || type === 'file-2-3' ? '请选择文件' : '请选择文件夹';
+            // 检查文件
+            if (fileInput.files.length === 0) {
+                const errorMsg = '请选择文件';
                 log(errorMsg, 'error');
                 error.textContent = errorMsg;
                 error.style.display = 'block';
                 return;
             }
 
-            // 检查输出文件夹
-            if ((type === 'folder-1-4' || type === 'file-2-3') && outputFolderInput.files.length === 0) {
-                // 不选择输出文件夹时，使用默认路径
-                log('未选择输出文件夹，使用默认路径', 'info');
-                outputFolderPath = 'default_output';
-            } else if (type === 'folder-1-4' || type === 'file-2-3') {
-                outputFolderPath = outputFolderPathInput.value;
-            }
-
-            toolOrMode = toolOrModeInput.value;
+            const tool = toolInput.value;
 
             // 准备表单数据
             const formData = new FormData();
-            if (type === 'file') {
-                // 单个非EPUB文件处理
-                formData.append('file', fileOrFolderInput.files[0]); // 文件对象
-                formData.append('tool', toolOrMode); // 工具类型 (vcf, se, sc, tosougou)
-            } else if (type === 'folder-1-4') {
-                // ZIP文件处理（EPUB）
-                formData.append('zip_file', fileOrFolderInput.files[0]); // ZIP文件对象
-                formData.append('is_zip_file', 'true'); // 标记为ZIP文件
-                formData.append('mode', toolOrMode); // 模式 (epub_to_txt, epub_to_rime)
-                
-                // 如果指定了输出文件夹
-                if (outputFolderPath && outputFolderPath !== 'default_output') {
-                    formData.append('output_folder', outputFolderPath); // 输出文件夹路径
-                }
-            } else if (type === 'file-2-3') {
-                // 文本文件处理
-                formData.append('file', fileOrFolderInput.files[0]); // 文件对象
-                formData.append('mode', toolOrMode); // 模式 (txt_to_short_long, txt_to_rime)
-                formData.append('tool', 'epub'); // 
-                
-                // 如果指定了输出文件夹
-                if (outputFolderPath && outputFolderPath !== 'default_output') {
-                    formData.append('output_folder', outputFolderPath); // 输出文件夹路径
-                }
-            }
+            formData.append('file', fileInput.files[0]); // 文件对象
+            formData.append('tool', tool); // 工具类型 (vcf, se, sc, tosougou)
             
             // 添加调试信息
             log(`准备发送请求 - 参数:`, 'info');
-            for (let pair of formData.entries()) {
-                if (!pair[0].includes('file') && !pair[0].includes('zip_file')) { // 不显示文件内容
-                    log(`${pair[0]}: ${pair[1]}`, 'info');
-                } else {
-                    const fileObj = pair[1];
-                    if (fileObj instanceof File) {
-                        log(`${pair[0]}: 文件 "${fileObj.name}", 大小: ${(fileObj.size / 1024).toFixed(2)} KB`, 'info');
-                    } else {
-                        log(`${pair[0]}: [数据]`, 'info');
-                    }
-                }
-            }
+            log(`工具: ${tool}`, 'info');
+            const fileObj = fileInput.files[0];
+            log(`文件: "${fileObj.name}", 大小: ${(fileObj.size / 1024).toFixed(2)} KB`, 'info');
 
-            log(`准备发送请求 - ${type}: ${pathInput.value}, ${type === 'file' ? '工具' : '模式'}: ${toolOrMode}`);
-            if (outputFolderPath) {
-                log(`输出文件夹: ${outputFolderPath}`);
-            }
+            log(`准备发送请求 - 文件: ${pathInput.value}, 工具: ${tool}`);
 
             // 更新 UI 状态
-            // loading.style.display = 'block';
             error.style.display = 'none';
-            // success.style.display = 'none';
 
             // 设置请求超时错误处理
             const controller = new AbortController();

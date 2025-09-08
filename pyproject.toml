@@ -5,15 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "rimetool"
 version = "2.1.4"
-description = "Rime输入法相关工具集，支持词库转换、通讯录导入、EPUB处理等功能"
+description = "Rime输入法相关工具集，支持词库转换、通讯录导入等功能"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "argparse>=1.4.0",
-    "beautifulsoup4>=4.13.5",
+    # "beautifulsoup4>=4.13.5",  # EPUB功能已注销
     "chardet>=5.2.0",
     "click>=8.2.1",
-    "ebooklib>=0.19",
+    # "ebooklib>=0.19",  # EPUB功能已注销
     "flask>=3.1.2",
     "flask-cors>=6.0.1",
     "pypinyin>=0.55.0",

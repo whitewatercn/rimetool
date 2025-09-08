@@ -82,7 +82,6 @@ def main(output_files=None, is_web=False):
         try:
             # 直接运行 new_app.py
             import subprocess
-            import os
             
             # 获取 new_app.py 的路径
             current_dir = os.path.dirname(os.path.abspath(__file__))

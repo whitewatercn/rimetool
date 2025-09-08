@@ -13,6 +13,7 @@ test/
 *output*
 rimetool/rimetool_gui/uploads/
 rimetool/rimetool_gui/outputs/
+rimetool_output/
 
 # 日志文件
 *.log

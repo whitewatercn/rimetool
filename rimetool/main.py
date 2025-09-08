@@ -28,20 +28,10 @@ help_text = """
 | --tool simple-english | 将单个词（如hello）或单个词组（如hello world）文件（.txt）导出为rime词库 | simple-english可简化为se |
 | --tool simple-chinese | 将单个中文词组（如你好）文件（.txt）导出为rime词库                    | simple-chinese可简化为sc |
 | --tool tosougou       | 将rime词库导出为搜狗txt词库                                |                      |
-| --tool epub           | epub相关功能，需指定--mode参数                             |                      |
-
-# epub模式说明（已停用）:
-
-# | 参数       | 模式                | 说明               |
-# | -------- | ----------------- | ---------------- |
-# | --mode 1 | epub_to_txt       | 将EPUB转换为纯文本      |
-# | --mode 2 | txt_to_short_long | 将文本转换为短句和长句      |
-# | --mode 3 | txt_to_rime       | 将文本转换为rime格式     |
-# | --mode 4 | epub_to_rime      | 完整的EPUB到rime转换流程 |
 
 """
 
-# 定义模式映射
+# 定义模式映射 (EPUB功能已注销，不再需要模式)
 mode_choices = {}
 
 
@@ -55,6 +45,7 @@ def get_args_parser(add_help=True):
         parser.add_argument('--port', default=5023, type=int, help='服务器端口 (默认: 5023)')
         parser.add_argument('--debug', action='store_true', help='启用调试模式')
         parser.add_argument('--log-dir', help='日志文件目录 (默认: 当前目录/rimetool/logs)')
+        parser.add_argument('--jieba-dict', required=False, type=str, help='jieba自定义分词词典路径（仅simple-chinese/sc有效）')
         return parser
     else:
         # 具体功能的实现
@@ -62,6 +53,7 @@ def get_args_parser(add_help=True):
         parser.add_argument('--input-path', '-i', required=True, type=str)
         parser.add_argument('--output-path', '-o', default='./rimetool_output', type=str)
         parser.add_argument('--tool', '-t', required=True, choices=['vcf','simple-english','se','simple-chinese','sc','tosougou','hello'], type=str)
+        parser.add_argument('--jieba-dict','-jd', required=False, type=str, help='jieba自定义分词词典路径（仅simple-chinese/sc有效）')
         # parser.add_argument('--mode', '-m', required=False, choices=list(mode_choices.keys()))
         return parser
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rimetool"
-version = "2.1.4"
+version = "2.2.0"
 description = "Rime输入法相关工具集，支持词库转换、通讯录导入等功能"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -16,12 +16,17 @@ dependencies = [
     # "ebooklib>=0.19",  # EPUB功能已注销
     "flask>=3.1.2",
     "flask-cors>=6.0.1",
+    "jieba>=0.42.1",
     "pypinyin>=0.55.0",
     "zipp>=3.23.0",
 ]
 
 [project.scripts]
 rimetool = "rimetool.main:main"
+
+[tool.setuptools.packages.find]
+include = ["rimetool*"]
+exclude = ["rimetool_output*", "tests*"]
 
 [tool.setuptools.package-data]
 "rimetool.rimetool_gui" = ["templates/*", "templates/**/*"]

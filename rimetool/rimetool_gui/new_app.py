@@ -187,17 +187,23 @@ def process_file():
                 logger.warning("文件名为空")
                 return make_response('请选择文件', 400)
             files = [file]
-            
             # 保存文件到uploads文件夹
             input_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(input_path)
             logger.info(f"文件已保存到: {input_path}, 大小: {os.path.getsize(input_path)} 字节")
-            
             # 设置输出路径
             if custom_output_path:
                 output_path = custom_output_path
             else:
                 output_path = os.path.join(OUTPUT_FOLDER, (tool or "default") + "_output")
+            # 检查是否上传了jieba分词库
+            jieba_dict_path = None
+            if 'jieba_dict' in request.files:
+                jieba_dict_file = request.files['jieba_dict']
+                if jieba_dict_file and jieba_dict_file.filename:
+                    jieba_dict_path = os.path.join(UPLOAD_FOLDER, jieba_dict_file.filename)
+                    jieba_dict_file.save(jieba_dict_path)
+                    logger.info(f"jieba分词库已保存到: {jieba_dict_path}, 大小: {os.path.getsize(jieba_dict_path)} 字节")
         elif 'files[]' in request.files: # 文件夹 - EPUB功能已注销
             logger.warning("EPUB功能已注销，拒绝处理文件夹")
             return make_response('EPUB功能已注销，请使用其他工具处理文件', 400)
@@ -209,6 +215,9 @@ def process_file():
         args = ['--input-path', input_path, '--output-path', output_path, '--tool', tool]
         if mode:
             args.extend(['--mode', mode])
+        # 如果上传了jieba分词库，添加参数 (使用连字符格式)
+        if 'jieba_dict_path' in locals() and jieba_dict_path:
+            args.extend(['--jieba-dict', jieba_dict_path])
         
         logger.info(f"执行命令参数: {args}")
         

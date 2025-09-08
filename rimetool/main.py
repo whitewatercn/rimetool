@@ -1,7 +1,8 @@
 from datetime import datetime
 import os
 import sys
-from .rimetool_core.utils import Epub_Processor, vcf
+# from .rimetool_core.utils import Epub_Processor, vcf
+from .rimetool_core.utils import vcf
 from .rimetool_core.utils import simple_english
 from .rimetool_core.utils import simple_chinese
 from .rimetool_core.utils import tosougou
@@ -29,28 +30,20 @@ help_text = """
 | --tool tosougou       | 将rime词库导出为搜狗txt词库                                |                      |
 | --tool epub           | epub相关功能，需指定--mode参数                             |                      |
 
-epub模式说明:
+# epub模式说明（已停用）:
 
-| 参数       | 模式                | 说明               |
-| -------- | ----------------- | ---------------- |
-| --mode 1 | epub_to_txt       | 将EPUB转换为纯文本      |
-| --mode 2 | txt_to_short_long | 将文本转换为短句和长句      |
-| --mode 3 | txt_to_rime       | 将文本转换为rime格式     |
-| --mode 4 | epub_to_rime      | 完整的EPUB到rime转换流程 |
+# | 参数       | 模式                | 说明               |
+# | -------- | ----------------- | ---------------- |
+# | --mode 1 | epub_to_txt       | 将EPUB转换为纯文本      |
+# | --mode 2 | txt_to_short_long | 将文本转换为短句和长句      |
+# | --mode 3 | txt_to_rime       | 将文本转换为rime格式     |
+# | --mode 4 | epub_to_rime      | 完整的EPUB到rime转换流程 |
 
 """
 
 # 定义模式映射
-mode_choices = {
-    '1': 'epub_to_txt',
-    '2': 'txt_to_short_long',
-    '3': 'txt_to_rime',
-    '4': 'epub_to_rime',
-    'epub_to_txt': 'epub_to_txt',
-    'txt_to_short_long': 'txt_to_short_long',
-    'txt_to_rime': 'txt_to_rime',
-    'epub_to_rime': 'epub_to_rime'
-}
+mode_choices = {}
+
 
 def get_args_parser(add_help=True):
     # 检查是否有 'web' 子命令
@@ -68,8 +61,8 @@ def get_args_parser(add_help=True):
         parser = argparse.ArgumentParser(description=help_text, add_help=add_help, formatter_class=argparse.RawTextHelpFormatter)
         parser.add_argument('--input-path', '-i', required=True, type=str)
         parser.add_argument('--output-path', '-o', default='./rimetool_output', type=str)
-        parser.add_argument('--tool', '-t', required=True, choices=['vcf','simple-english','se','simple-chinese','sc','tosougou','epub','hello'], type=str)
-        parser.add_argument('--mode', '-m', required=False, choices=list(mode_choices.keys()))
+        parser.add_argument('--tool', '-t', required=True, choices=['vcf','simple-english','se','simple-chinese','sc','tosougou','hello'], type=str)
+        # parser.add_argument('--mode', '-m', required=False, choices=list(mode_choices.keys()))
         return parser
 
 def main(output_files=None, is_web=False):
@@ -132,35 +125,7 @@ def main(output_files=None, is_web=False):
         name = simple_chinese.main(args.input_path, args.output_path, is_web)
     elif args.tool == 'tosougou':
         name = tosougou.main(args.input_path, args.output_path, is_web)
-    elif args.tool == 'epub':
-        output_dir = args.output_path
-        output_files = {
-            'clean': os.path.join(output_dir, "epub转txt.txt"),
-            'short': os.path.join(output_dir, "短句拆分.txt"),
-            'long': os.path.join(output_dir, "长句拆分.txt")
-        }
-        print(output_files)
-        processor = Epub_Processor.EpubProcessor(args.input_path, output_dir, output_files,current_time, is_web)
-        
-        mode = mode_choices[args.mode]
-        if mode == 'epub_to_txt':
-            output_file = processor.epub_to_txt()
-            if is_web:
-                return output_file
-        elif mode == 'txt_to_short_long':
-            output_files = processor.txt_to_short_long(args.input_path, output_files)
-            if is_web:
-                return output_files
-        elif mode == 'txt_to_rime':
-            output_files = processor.txt_to_rime_all(args.input_path,output_files)
-            if is_web:
-                return output_files
-        elif mode == 'epub_to_rime':
-            output_files = processor.epub_to_rime(output_files)
-            if is_web:
-                return output_files
-        else:
-            raise ValueError('请选择正确的EPUB处理模式')
+
     else:
         raise ValueError('请选择正确的工具。')
     return name
@@ -176,14 +141,9 @@ def main_with_args(args_list):
         args = parser.parse_args(args_list)
         output_files = None
         print("args.tool:"+args.tool)
-        if args.tool == 'epub':
-            output_dir = args.output_path
-            output_files = {
-                'clean': os.path.join(output_dir, "epub转txt.txt"),
-                'short': os.path.join(output_dir, "短句拆分.txt"),
-                'long': os.path.join(output_dir, "长句拆分.txt")
-            }
-            sys.argv = [''] + args_list 
+        # if args.tool == 'epub':
+        #     # EPUB功能已注销
+        #     raise ValueError('EPUB功能已注销，请使用其他工具。')
         
         # 标记这是从web界面调用的
         result = main(output_files, is_web=True)

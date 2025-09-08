@@ -132,24 +132,9 @@ def index():
         logger.error(f"渲染模板失败: {str(e)}\n{traceback.format_exc()}")
         return "服务器错误", 500
 
-def create_meta_inf_folder(epub_folder_name, max_retries=3):
-    """创建 META-INF 文件夹并确保其存在"""
-    meta_inf_path = os.path.join(epub_folder_name, 'META-INF')
-    for attempt in range(max_retries):
-        try:
-            if not os.path.exists(meta_inf_path):
-                os.makedirs(meta_inf_path)
-                logger.info(f"成功创建 META-INF 文件夹: {meta_inf_path}")
-                return True
-            logger.info(f"META-INF 文件夹已存在: {meta_inf_path}")
-            return True
-        except Exception as e:
-            logger.error(f"创建 META-INF 文件夹失败 (尝试 {attempt+1}/{max_retries}): {str(e)}")
-            if attempt == max_retries - 1:
-                raise e
-            import time
-            time.sleep(1)  # 等待一秒后重试
-    return False
+# def create_meta_inf_folder(epub_folder_name, max_retries=3):
+#     """创建 META-INF 文件夹并确保其存在 - EPUB功能已注销"""
+#     pass
 
 @app.route('/process', methods=['POST'])
 def process_file():
@@ -173,9 +158,11 @@ def process_file():
         is_zip_file = request.form.get('is_zip_file') == 'true'
         output_folder = request.form.get('output_folder')
 
-        # 处理文件夹中的 EPUB 文件时设置默认工具
+        # 处理文件夹中的文件时设置默认工具
         if not tool:
-            tool = 'epub'
+            # EPUB功能已注销，拒绝处理
+            logger.warning("EPUB功能已注销")
+            return make_response('EPUB功能已注销，请使用其他工具', 400)
 
         # 设置默认输出路径
         if output_folder:
@@ -191,54 +178,10 @@ def process_file():
         output_path = None
         output_files = None
         
-        if 'zip_file' in request.files: # ZIP文件
-            zip_file = request.files['zip_file']
-            if not zip_file.filename:
-                logger.warning("ZIP文件名为空")
-                return make_response('请选择ZIP文件', 400)
-            
-            try:
-                # 保存ZIP文件到uploads文件夹
-                zip_path = os.path.join(UPLOAD_FOLDER, zip_file.filename)
-                zip_file.save(zip_path)
-                logger.info(f"ZIP文件已保存到: {zip_path}, 大小: {os.path.getsize(zip_path)} 字节")
-                
-                # 检查ZIP文件
-                if not zipfile.is_zipfile(zip_path):
-                    logger.error(f"文件不是有效的ZIP文件: {zip_path}")
-                    return make_response('选择的文件不是有效的ZIP文件', 400)
-                
-                # 解压前清理同名文件夹
-                extract_path = os.path.join(UPLOAD_FOLDER, os.path.splitext(zip_file.filename)[0])
-                if os.path.exists(extract_path):
-                    logger.info(f"删除已存在的文件夹: {extract_path}")
-                    shutil.rmtree(extract_path)
-                
-                # 解压ZIP文件
-                os.makedirs(extract_path, exist_ok=True)
-                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                    # 列出ZIP中的文件
-                    file_list = zip_ref.namelist()
-                    logger.info(f"ZIP文件内容: {file_list[:20]}" + ("..." if len(file_list) > 20 else ""))
-                    
-                    # 解压到以文件名命名的文件夹
-                    zip_ref.extractall(extract_path)
-                    logger.info(f"ZIP文件已解压到: {extract_path}")
-                    
-                    # 创建META-INF文件夹
-                    create_meta_inf_folder(extract_path)
-                    
-                    input_path = extract_path
-            except Exception as e:
-                logger.error(f"处理ZIP文件失败: {str(e)}\n{traceback.format_exc()}")
-                return make_response(f'处理ZIP文件失败: {str(e)}', 500)
-            
-            # 设置输出路径
-            if custom_output_path:
-                output_path = custom_output_path
-            else:
-                output_path = os.path.join(OUTPUT_FOLDER, (tool or "epub") + "_output")
-        elif 'file' in request.files: # 非epub的单个文件
+        if 'zip_file' in request.files: # ZIP文件 - EPUB功能已注销
+            logger.warning("EPUB功能已注销，拒绝处理ZIP文件")
+            return make_response('EPUB功能已注销，请使用其他工具处理文件', 400)
+        elif 'file' in request.files: # 单个文件
             file = request.files['file']
             if not file.filename:
                 logger.warning("文件名为空")
@@ -255,27 +198,9 @@ def process_file():
                 output_path = custom_output_path
             else:
                 output_path = os.path.join(OUTPUT_FOLDER, (tool or "default") + "_output")
-        elif 'files[]' in request.files: # epub的文件夹
-            files = request.files.getlist('files[]')
-            
-            if not files:
-                logger.warning("请求中没有文件")
-                return make_response('请选择文件', 400)
-            
-            # 创建epub文件夹并保存所有文件
-            input_path = os.path.join(UPLOAD_FOLDER, files[0].filename.split("/")[0])
-            os.makedirs(input_path, exist_ok=True)
-            
-            for file in files:
-                file_path = os.path.join(input_path, file.filename.split("/")[-1])
-                file.save(file_path)
-                logger.info(f"文件已保存到: {file_path}")
-            
-            # 设置输出路径
-            if custom_output_path:
-                output_path = custom_output_path
-            else:
-                output_path = os.path.join(OUTPUT_FOLDER, (tool or "default") + "_output")
+        elif 'files[]' in request.files: # 文件夹 - EPUB功能已注销
+            logger.warning("EPUB功能已注销，拒绝处理文件夹")
+            return make_response('EPUB功能已注销，请使用其他工具处理文件', 400)
         else:
             logger.warning("请求中没有文件")
             return make_response('请选择文件', 400)

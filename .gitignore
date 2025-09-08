@@ -15,7 +15,12 @@ rimetool/rimetool_gui/uploads/
 rimetool/rimetool_gui/outputs/
 
 # 日志文件
-rimetool_gui/rimetool_gui.log
+*.log
+**/*.log
+log*/
+*/log*/
+**/log*/
+
 
 # 环境
 .venv/

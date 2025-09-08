@@ -39,19 +39,20 @@ class EpubProcessor:
         self.web_output_files = []  # 用于收集需要在Web界面下载的文件
     def read_epub(self):
         """从EPUB文件中读取内容"""
-        tmp = ''
+        tmp=''
         book = epub.read_epub(self.input_path)
         for item in book.get_items():
             if item.get_type() == ebooklib.ITEM_DOCUMENT:
                 # self.content += item.get_body_content().decode('utf-8')
                 content = item.get_body_content().decode('utf-8')
-                
-                # 从每个文档中提取章节
+    
+    # def extract_sections(self):
+        # """提取所有章节内容"""
                 sections = re.findall(r'<.*id=\"CHP.*?>.*</.*?>',content, re.DOTALL)
                 
                 for section in sections:
-                    tmp += section
-                    tmp += '\n'
+                    tmp+=section
+                    tmp+='\n'
         return tmp
     
     def process_html(self, html_content):

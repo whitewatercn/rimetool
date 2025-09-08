@@ -31,8 +31,8 @@ def main(input_file, output_path, is_web=False):
 			new_line_with_pinyin = new_line + '\t' + pinyin + '\t1\n'
 			outfile.write(new_line_with_pinyin)
 		print(f"已生成文件 {os.path.abspath(outfile.name)}")
-		
-    # 返回文件名，用于web下载
+	
+	# 返回文件名，用于web下载
 	filename = os.path.basename(output_file)
 	if is_web:
 		return output_file

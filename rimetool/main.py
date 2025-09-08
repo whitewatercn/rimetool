@@ -45,7 +45,7 @@ def get_args_parser(add_help=True):
         parser.add_argument('--port', default=5023, type=int, help='服务器端口 (默认: 5023)')
         parser.add_argument('--debug', action='store_true', help='启用调试模式')
         parser.add_argument('--log-dir', help='日志文件目录 (默认: 当前目录/rimetool/logs)')
-        parser.add_argument('--jieba_dict', required=False, type=str, help='jieba自定义分词词典路径（仅simple-chinese/sc有效）')
+        parser.add_argument('--jieba-dict', required=False, type=str, help='jieba自定义分词词典路径（仅simple-chinese/sc有效）')
         return parser
     else:
         # 具体功能的实现
@@ -53,7 +53,7 @@ def get_args_parser(add_help=True):
         parser.add_argument('--input-path', '-i', required=True, type=str)
         parser.add_argument('--output-path', '-o', default='./rimetool_output', type=str)
         parser.add_argument('--tool', '-t', required=True, choices=['vcf','simple-english','se','simple-chinese','sc','tosougou','hello'], type=str)
-        parser.add_argument('--jieba_dict', required=False, type=str, help='jieba自定义分词词典路径（仅simple-chinese/sc有效）')
+        parser.add_argument('--jieba-dict','-jd' required=False, type=str, help='jieba自定义分词词典路径（仅simple-chinese/sc有效）')
         # parser.add_argument('--mode', '-m', required=False, choices=list(mode_choices.keys()))
         return parser
 

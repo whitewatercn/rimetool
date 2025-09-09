@@ -68,7 +68,7 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 	# 生成短句子级别的词典文件（short_sentence）
 	with open(short_sentence_output_file, 'w', encoding='utf-8') as outfile:
 		outfile.write(
-			"# 生成工具 https://github.com/whitewatercn/rimetool\n" +
+			"# 生成工具 https://github.com/B-Beginner/rimetool\n" +
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 短句子级别词典\n" +
 			"---\n" +
@@ -90,7 +90,7 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 	# 生成长句子级别的词典文件（long_sentence）
 	with open(long_sentence_output_file, 'w', encoding='utf-8') as outfile:
 		outfile.write(
-			"# 生成工具 https://github.com/whitewatercn/rimetool\n" +
+			"# 生成工具 https://github.com/B-Beginner/rimetool\n" +
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 长句子级别词典\n" +
 			"---\n" +
@@ -112,7 +112,7 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 	# 生成词语级别的词典文件
 	with open(word_output_file, 'w', encoding='utf-8') as outfile:
 		outfile.write(
-			"# 生成工具 https://github.com/whitewatercn/rimetool\n" +
+			"# 生成工具 https://github.com/B-Beginner/rimetool\n" +
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 词语级别词典 (jieba分词)\n" +
 			"---\n" +
@@ -146,7 +146,7 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 	# 生成完整的词典文件（拼接短句、长句和词语文件）
 	with open(full_output_file, 'w', encoding='utf-8') as outfile:
 		outfile.write(
-			"# 生成工具 https://github.com/whitewatercn/rimetool\n" +
+			"# 生成工具 https://github.com/B-Beginner/rimetool\n" +
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 完整词典 (短句+长句+词语拼接)\n" +
 			"---\n" +

@@ -31,8 +31,8 @@ exclude = ["rimetool_output*", "tests*"]
 [tool.setuptools.package-data]
 "rimetool.rimetool_gui" = ["templates/*", "templates/**/*"]
 
-#备注：以下代码为修改至清华源下载pip包，如果不需要可以注释掉
-[[index]]
-url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"  
-default = true
+#备注：以下代码为修改至清华源下载pip包，如果需要可以启用
+# [[index]]
+# url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"  
+# default = true
 #备注结束

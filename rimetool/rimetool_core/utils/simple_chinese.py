@@ -22,15 +22,17 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 		jieba.load_userdict(jieba_dict)
 	
 	current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+	# 以输入文件名（不含扩展名）作为前缀，生成输出文件名
+	base_name = os.path.splitext(os.path.basename(input_file))[0]
 	
 	# 短句子级别的输出文件
-	short_sentence_output_file = os.path.join(output_path, f'simple_chinese_output_{current_time}_short_sentence.dict.yaml')
+	short_sentence_output_file = os.path.join(output_path, f'{base_name}_simple_chinese_output_{current_time}_short_sentence.dict.yaml')
 	# 长句子级别的输出文件
-	long_sentence_output_file = os.path.join(output_path, f'simple_chinese_output_{current_time}_long_sentence.dict.yaml')
+	long_sentence_output_file = os.path.join(output_path, f'{base_name}_simple_chinese_output_{current_time}_long_sentence.dict.yaml')
 	# 词语级别的输出文件
-	word_output_file = os.path.join(output_path, f'simple_chinese_output_{current_time}_word.dict.yaml')
+	word_output_file = os.path.join(output_path, f'{base_name}_simple_chinese_output_{current_time}_word.dict.yaml')
 	# 完整的输出文件（包含句子和词语）
-	full_output_file = os.path.join(output_path, f'simple_chinese_output_{current_time}_full.dict.yaml')
+	full_output_file = os.path.join(output_path, f'{base_name}_simple_chinese_output_{current_time}_full.dict.yaml')
 	
 	# 用于存储分割后的短句内容
 	short_segments_content = []
@@ -68,11 +70,11 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 	# 生成短句子级别的词典文件（short_sentence）
 	with open(short_sentence_output_file, 'w', encoding='utf-8') as outfile:
 		outfile.write(
-			"# 生成工具 https://github.com/whitewatercn/rimetool\n" +
+			"# 生成工具 https://github.com/B-Beginner/rimetool\n" +
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 短句子级别词典\n" +
 			"---\n" +
-			"name: simple_chinese_output_" + current_time + "_short_sentence\n" +
+			"name: " + base_name + "_simple_chinese_output_" + current_time + "_short_sentence\n" +
 			"version: \"1.0\"\n" +
 			"sort: by_weight\n" +
 			"...\n"
@@ -90,11 +92,11 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 	# 生成长句子级别的词典文件（long_sentence）
 	with open(long_sentence_output_file, 'w', encoding='utf-8') as outfile:
 		outfile.write(
-			"# 生成工具 https://github.com/whitewatercn/rimetool\n" +
+			"# 生成工具 https://github.com/B-Beginner/rimetool\n" +
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 长句子级别词典\n" +
 			"---\n" +
-			"name: simple_chinese_output_" + current_time + "_long_sentence\n" +
+			"name: " + base_name + "_simple_chinese_output_" + current_time + "_long_sentence\n" +
 			"version: \"1.0\"\n" +
 			"sort: by_weight\n" +
 			"...\n"
@@ -112,11 +114,11 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 	# 生成词语级别的词典文件
 	with open(word_output_file, 'w', encoding='utf-8') as outfile:
 		outfile.write(
-			"# 生成工具 https://github.com/whitewatercn/rimetool\n" +
+			"# 生成工具 https://github.com/B-Beginner/rimetool\n" +
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 词语级别词典 (jieba分词)\n" +
 			"---\n" +
-			"name: simple_chinese_output_" + current_time + "_word\n" +
+			"name: " + base_name + "_simple_chinese_output_" + current_time + "_word\n" +
 			"version: \"1.0\"\n" +
 			"sort: by_weight\n" +
 			"...\n"
@@ -146,11 +148,11 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 	# 生成完整的词典文件（拼接短句、长句和词语文件）
 	with open(full_output_file, 'w', encoding='utf-8') as outfile:
 		outfile.write(
-			"# 生成工具 https://github.com/whitewatercn/rimetool\n" +
+			"# 生成工具 https://github.com/B-Beginner/rimetool\n" +
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 完整词典 (短句+长句+词语拼接)\n" +
 			"---\n" +
-			"name: simple_chinese_output_" + current_time + "_full\n" +
+			"name: " + base_name + "_simple_chinese_output_" + current_time + "_full\n" +
 			"version: \"1.0\"\n" +
 			"sort: by_weight\n" +
 			"...\n"

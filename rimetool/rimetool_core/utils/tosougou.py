@@ -10,7 +10,7 @@ def main(input_file, output_path, is_web=False):
 
 	with open(input_file, 'r', encoding=encoding) as infile, open(output_file, 'w+', encoding=encoding) as outfile:
 		outfile.write(
-			"# 生成工具 https://github.com/whitewatercn/rimetool\n" +
+			"# 生成工具 https://github.com/B-Beginner/rimetool\n" +
 			"# 生成时间 " + current_time + "\n" 
 			# 搜狗输入法导入时，识别"---"会报错
 			# +

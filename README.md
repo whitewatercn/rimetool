@@ -60,7 +60,7 @@ END:VCARD
 其内容为
 
 ```
-# 生成工具 https://github.com/whitewatercn/rimetools
+# 生成工具 https://github.com/B-Beginner/rimetools
 # 生成时间 2024-06-13_16-03-02
 ---
 apple	apple	1

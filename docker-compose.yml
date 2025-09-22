@@ -1,10 +1,32 @@
-# filepath: /Users/ww/coding/rimetool_new/docker-compose.yml
-version: "3"
 services:
   rimetool:
-    container_name: rimetool  # 设置docker容器名称为rimetool
-    image: whitewatercn/rimetool:latest
+    container_name: rimetool-web
+    image: python:3.11-slim
+    restart: unless-stopped
+    working_dir: /app
     ports:
-      - "5023:5023"  # 映射容器的5003端口到主机的5023端口
+      - "2591:2591"        # 从 2591:5001 改为 2591:2591
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    volumes:
+      - rimetool-venv:/opt/venv
+      - ./rimetool/logs:/app/rimetool/logs
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -e
+        mkdir -p /app/rimetool/logs
+        if [ ! -x /opt/venv/bin/python ]; then
+          python -m venv /opt/venv
+          . /opt/venv/bin/activate
+          pip install --upgrade pip setuptools wheel
+        else
+          . /opt/venv/bin/activate
+        fi
+        pip install --upgrade rimetool
+        exec /opt/venv/bin/rimetool web --port 2591 --log-dir /app/rimetool/logs
 
-    # ...其它配置，如环境变量、卷挂载等...
+volumes:
+  rimetool-venv:

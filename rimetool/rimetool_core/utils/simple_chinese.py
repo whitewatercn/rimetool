@@ -74,7 +74,7 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 短句子级别词典\n" +
 			"---\n" +
-			"name: simple_chinese_output_" + current_time + "_short_sentence\n" +
+			"name: " + base_name + "_simple_chinese_output_" + current_time + "_short_sentence\n" +
 			"version: \"1.0\"\n" +
 			"sort: by_weight\n" +
 			"...\n"
@@ -96,7 +96,7 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 长句子级别词典\n" +
 			"---\n" +
-			"name: simple_chinese_output_" + current_time + "_long_sentence\n" +
+			"name: " + base_name + "_simple_chinese_output_" + current_time + "_long_sentence\n" +
 			"version: \"1.0\"\n" +
 			"sort: by_weight\n" +
 			"...\n"
@@ -118,7 +118,7 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 词语级别词典 (jieba分词)\n" +
 			"---\n" +
-			"name: simple_chinese_output_" + current_time + "_word\n" +
+			"name: " + base_name + "_simple_chinese_output_" + current_time + "_word\n" +
 			"version: \"1.0\"\n" +
 			"sort: by_weight\n" +
 			"...\n"
@@ -152,7 +152,7 @@ def main(input_file, output_path, is_web=False, jieba_dict=None):
 			"# 生成时间 " + current_time + "\n" +
 			"# 类型: 完整词典 (短句+长句+词语拼接)\n" +
 			"---\n" +
-			"name: simple_chinese_output_" + current_time + "_full\n" +
+			"name: " + base_name + "_simple_chinese_output_" + current_time + "_full\n" +
 			"version: \"1.0\"\n" +
 			"sort: by_weight\n" +
 			"...\n"

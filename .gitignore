@@ -26,6 +26,7 @@ log*/
 # 环境
 .venv/
 .vscode/
+uv.lock
 
 # 其他
 .DS_Store

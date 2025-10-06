@@ -341,6 +341,8 @@ def get_website_config():
         "name": GUIConfig.WEBSITE_NAME,
         "title": GUIConfig.WEBSITE_TITLE,
         "version": GUIConfig.BACKEND_VERSION,
+        "google_ad_snippet": GUIConfig.GOOGLE_AD_SNIPPET,
+        "gui_version": GUIConfig.GUI_VERSION,
     })
 
 if __name__ == '__main__':

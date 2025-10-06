@@ -62,6 +62,7 @@
 <body class="bg-background text-foreground flex flex-col items-center justify-center p-4">
     <h1 id="website-name" class="text-5xl font-bold text-primary mb-2"></h1>
     <div id="version-info" class="text-lg text-gray-600 mb-6"></div>
+    <div id="google-ad-container" class="w-full max-w-4xl mx-auto mb-6 flex justify-center"></div>
 
     <div id="error" class="error hidden text-destructive bg-red-100 border border-red-400 p-4 rounded mb-4"></div>
     <!-- <div id="success" class="success hidden text-accent bg-yellow-100 border border-yellow-400 p-4 rounded mb-4">处理成功！</div>
@@ -123,8 +124,6 @@
     </div>
 
     <script>
-        // 定义GUI版本变量
-        const GUI_VERSION = '1.2.1';
         // 自动获取当前页面的主机和端口
         const BASE_URL = `${window.location.protocol}//${window.location.host}`;
         
@@ -618,6 +617,29 @@
                 }
             }, 5000);
         }
+
+        function injectGoogleAdSnippet(html) {
+            if (!html) {
+                return;
+            }
+
+            const container = document.getElementById('google-ad-container');
+            if (!container) {
+                return;
+            }
+
+            container.innerHTML = html;
+
+            const scripts = container.querySelectorAll('script');
+            scripts.forEach((oldScript) => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach((attr) => {
+                    newScript.setAttribute(attr.name, attr.value);
+                });
+                newScript.textContent = oldScript.textContent;
+                oldScript.replaceWith(newScript);
+            });
+        }
     </script>
 
     <footer class="mt-6 text-center">
@@ -645,9 +667,10 @@
                 document.getElementById('version-info').textContent = `后端版本 ${data.version || '未知'}`;
                 // 在version-info元素的末尾添加一个显示GUI版本的元素
                 const guiVersionEl = document.createElement('div');
-                guiVersionEl.textContent = `GUI版本 ${GUI_VERSION}`;
+                guiVersionEl.textContent = `GUI版本 ${data.gui_version || '未知'}`;
                 guiVersionEl.className = 'text-lg text-gray-600 mt-1';
                 document.getElementById('version-info').appendChild(guiVersionEl);
+                injectGoogleAdSnippet(data.google_ad_snippet);
             })
             .catch(error => {
                 console.error('Failed to fetch website config:', error);

@@ -398,18 +398,18 @@ def get_website_config():
     })
 
 
-@app.route('/ads.txt', methods=['GET'])
-def serve_ads_txt():
-    """Serve ads.txt content configured in GUIConfig."""
-    content = str(getattr(GUIConfig, "ADS_TXT_LINES", ""))
+    @app.route('/ads.txt', methods=['GET'])
+    def serve_ads_txt():
+        """Serve ads.txt content configured in GUIConfig."""
+        content = str(getattr(GUIConfig, "ADS_TXT_LINES", ""))
 
-    if not content:
-        return Response("", mimetype='text/plain; charset=utf-8')
+        if not content:
+            return Response("", mimetype='text/plain; charset=utf-8')
 
-    if not content.endswith("\n"):
-        content += "\n"
+        if not content.endswith("\n"):
+            content += "\n"
 
-    return Response(content, mimetype='text/plain; charset=utf-8')
+        return Response(content, mimetype='text/plain; charset=utf-8')
 
 if __name__ == '__main__':
     logger.info("启动Flask应用")

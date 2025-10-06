@@ -394,6 +394,7 @@ def get_website_config():
         "title": GUIConfig.WEBSITE_TITLE,
         "version": PROJECT_VERSION,
         "google_ad_snippet": google_ad_snippet,
+        "custom_notice": getattr(GUIConfig, "CUSTOM_NOTICE_HTML", ""),
     })
 
 

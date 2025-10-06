@@ -115,13 +115,7 @@
             class="bg-primary text-primary-foreground  rounded p-2 w-full transition duration-300">处理文件</button>
     </div>
 
-    <!-- EPUB功能已注销的说明 -->
-    <div class="bg-yellow-50 border border-yellow-300 p-4 rounded mb-4 rounded-lg shadow-lg">
-        <h3 class="font-semibold mb-2 text-yellow-800">📢 功能说明</h3>
-        <p class="text-yellow-700">
-            EPUB 相关功能已注销，目前支持的功能包括：VCF联系人转换、简单英文/中文词库转换、搜狗词库转换等。
-        </p>
-    </div>
+    <div id="custom-notice" class="hidden bg-blue-50 border border-blue-200 p-4 rounded mb-4 rounded-lg shadow-lg"></div>
 
     <script>
         // 自动获取当前页面的主机和端口
@@ -669,6 +663,16 @@
                     versionInfo.textContent = `版本 ${data.version}`;
                 } else {
                     versionInfo.textContent = '';
+                }
+                const noticeContainer = document.getElementById('custom-notice');
+                if (noticeContainer) {
+                    if (data.custom_notice) {
+                        noticeContainer.innerHTML = data.custom_notice;
+                        noticeContainer.classList.remove('hidden');
+                    } else {
+                        noticeContainer.innerHTML = '';
+                        noticeContainer.classList.add('hidden');
+                    }
                 }
                 injectGoogleAdSnippet(data.google_ad_snippet);
             })

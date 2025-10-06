@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, make_response, send_from_directory, send_file, jsonify
+from flask import Flask, request, render_template, make_response, send_from_directory, send_file, jsonify, Response
 import os
 import logging
 import traceback
@@ -10,6 +10,7 @@ import glob  # 用于日志文件管理
 from flask_cors import CORS  # 导入 CORS
 from datetime import datetime, time
 from io import BytesIO
+import textwrap
 
 # 导入配置文件
 try:
@@ -337,13 +338,50 @@ def get_beian_text():
 @app.route('/get_website_config', methods=['GET'])
 def get_website_config():
     """Serve the website name and title from the configuration file."""
+    client_id = getattr(GUIConfig, "GOOGLE_AD_CLIENT", "").strip()
+    google_ad_snippet = ""
+    if client_id:
+        google_ad_snippet = textwrap.dedent(
+            f"""
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={client_id}" crossorigin="anonymous"></script>
+            <!-- rimetool -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="{client_id}"
+                 data-ad-slot="3211445360"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+          <script>
+              (adsbygoogle = window.adsbygoogle || []).push({{}});
+          </script>
+            """
+        ).strip()
+
     return jsonify({
         "name": GUIConfig.WEBSITE_NAME,
         "title": GUIConfig.WEBSITE_TITLE,
         "version": GUIConfig.BACKEND_VERSION,
-        "google_ad_snippet": GUIConfig.GOOGLE_AD_SNIPPET,
+        "google_ad_snippet": google_ad_snippet,
         "gui_version": GUIConfig.GUI_VERSION,
     })
+
+
+@app.route('/ads.txt', methods=['GET'])
+def serve_ads_txt():
+    """Serve ads.txt content configured in GUIConfig."""
+    lines = getattr(GUIConfig, "ADS_TXT_LINES", [])
+    if isinstance(lines, str):
+        content = lines.strip()
+    else:
+        content = "\n".join(line.strip() for line in lines if str(line).strip())
+
+    if not content:
+        return Response(status=404)
+
+    if not content.endswith("\n"):
+        content = content + "\n"
+
+    return Response(content, mimetype='text/plain; charset=utf-8')
 
 if __name__ == '__main__':
     logger.info("启动Flask应用")

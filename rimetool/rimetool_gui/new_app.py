@@ -10,7 +10,20 @@ import glob  # 用于日志文件管理
 from flask_cors import CORS  # 导入 CORS
 from datetime import datetime, time
 from io import BytesIO
-import textwrap
+from pathlib import Path
+
+try:
+    from importlib import metadata as importlib_metadata
+except ImportError:  # pragma: no cover
+    import importlib_metadata  # type: ignore
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover
+    try:
+        import tomli as tomllib  # type: ignore
+    except ModuleNotFoundError:  # pragma: no cover
+        tomllib = None
 
 # 导入配置文件
 try:
@@ -20,6 +33,33 @@ except ImportError:
 """
 使用方法：运行本文件，然后打开new_index.html，右键点击 Open in Browser 预览选项
 """
+
+
+def _load_project_version() -> str:
+    """Determine the rimetool project version from package metadata or pyproject."""
+    try:
+        return importlib_metadata.version("rimetool")
+    except importlib_metadata.PackageNotFoundError:
+        if tomllib is None:
+            return "unknown"
+
+        pyproject_path = Path(__file__).resolve().parent.parent.parent / "pyproject.toml"
+        if not pyproject_path.exists():
+            return "unknown"
+
+        try:
+            with pyproject_path.open("rb") as fp:
+                data = tomllib.load(fp)
+        except Exception:
+            return "unknown"
+
+        project_data = data.get("project") if isinstance(data, dict) else None
+        if isinstance(project_data, dict):
+            version = project_data.get("version")
+            if isinstance(version, str) and version.strip():
+                return version.strip()
+
+        return "unknown"
 
 # 获取模板文件夹的绝对路径
 template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -80,6 +120,9 @@ logger.info(f"操作系统: {os.name}, {sys.platform}")
 logger.info(f"当前工作目录: {os.getcwd()}")
 logger.info(f"日志目录: {log_dir}")
 logger.info(f"日志文件: {log_file}")
+
+PROJECT_VERSION = _load_project_version()
+logger.info(f"检测到 rimetool 版本: {PROJECT_VERSION}")
 
 # 设置环境变量，帮助导入模块
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -338,48 +381,33 @@ def get_beian_text():
 @app.route('/get_website_config', methods=['GET'])
 def get_website_config():
     """Serve the website name and title from the configuration file."""
-    client_id = getattr(GUIConfig, "GOOGLE_AD_CLIENT", "").strip()
-    google_ad_snippet = ""
-    if client_id:
-        google_ad_snippet = textwrap.dedent(
-            f"""
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={client_id}" crossorigin="anonymous"></script>
-            <!-- rimetool -->
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="{client_id}"
-                 data-ad-slot="3211445360"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-          <script>
-              (adsbygoogle = window.adsbygoogle || []).push({{}});
-          </script>
-            """
-        ).strip()
+    configured_snippet = getattr(GUIConfig, "GOOGLE_AD_SNIPPET", "")
+    if isinstance(configured_snippet, str):
+        configured_snippet = configured_snippet.strip()
+    else:
+        configured_snippet = str(configured_snippet).strip()
+
+    google_ad_snippet = configured_snippet
 
     return jsonify({
         "name": GUIConfig.WEBSITE_NAME,
         "title": GUIConfig.WEBSITE_TITLE,
-        "version": GUIConfig.BACKEND_VERSION,
+        "version": PROJECT_VERSION,
         "google_ad_snippet": google_ad_snippet,
-        "gui_version": GUIConfig.GUI_VERSION,
+        "custom_notice": getattr(GUIConfig, "CUSTOM_NOTICE_HTML", ""),
     })
 
 
 @app.route('/ads.txt', methods=['GET'])
 def serve_ads_txt():
     """Serve ads.txt content configured in GUIConfig."""
-    lines = getattr(GUIConfig, "ADS_TXT_LINES", [])
-    if isinstance(lines, str):
-        content = lines.strip()
-    else:
-        content = "\n".join(line.strip() for line in lines if str(line).strip())
+    content = str(getattr(GUIConfig, "ADS_TXT_LINES", ""))
 
     if not content:
-        return Response(status=404)
+        return Response("", mimetype='text/plain; charset=utf-8')
 
     if not content.endswith("\n"):
-        content = content + "\n"
+        content += "\n"
 
     return Response(content, mimetype='text/plain; charset=utf-8')
 

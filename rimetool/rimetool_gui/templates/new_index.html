@@ -664,12 +664,12 @@
             .then(data => {
                 document.getElementById('website-title').textContent = data.title || 'Default Title';
                 document.getElementById('website-name').textContent = data.name || 'Default Name';
-                document.getElementById('version-info').textContent = `后端版本 ${data.version || '未知'}`;
-                // 在version-info元素的末尾添加一个显示GUI版本的元素
-                const guiVersionEl = document.createElement('div');
-                guiVersionEl.textContent = `GUI版本 ${data.gui_version || '未知'}`;
-                guiVersionEl.className = 'text-lg text-gray-600 mt-1';
-                document.getElementById('version-info').appendChild(guiVersionEl);
+                const versionInfo = document.getElementById('version-info');
+                if (data.version) {
+                    versionInfo.textContent = `版本 ${data.version}`;
+                } else {
+                    versionInfo.textContent = '';
+                }
                 injectGoogleAdSnippet(data.google_ad_snippet);
             })
             .catch(error => {

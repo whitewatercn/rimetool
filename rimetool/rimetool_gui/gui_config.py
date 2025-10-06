@@ -22,7 +22,7 @@ class GUIConfig:
     """.strip()
 
     # Optional: custom notice displayed on the homepage. Leave empty to hide the notice.
-    CUSTOM_NOTICE_HTML = ""
+    CUSTOM_NOTICE_HTML = "这是一条消息"
 
     # ads.txt lines served at https://<domain>/ads.txt
     ADS_TXT_LINES = "google.com, pub-5988994930330758, DIRECT, f08c47fec0942fa0"

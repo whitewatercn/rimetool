@@ -16,14 +16,15 @@ body {
 
 #google-ad-container {
     width: 100%;
-    max-width: 100%;
     min-height: 250px;
+    text-align: center;
 }
 
 #google-ad-container .adsbygoogle {
-    display: block;
-    width: 100%;
+    display: inline-block;
+    min-width: 320px;
     min-height: 250px;
+    max-width: 100%;
 }
 
 h1 {

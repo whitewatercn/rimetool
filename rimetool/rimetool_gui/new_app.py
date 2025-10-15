@@ -289,13 +289,14 @@ def process_file():
                         download_name=original_filename,
                         mimetype='application/octet-stream'
                     )
-                    # 设置文件下载的响应头
+                    # 设置文件下载的响应头，支持中文文件名
                     try:
                         original_filename.encode('ascii')
                         response.headers["Content-Disposition"] = f'attachment; filename="{original_filename}"'
                     except UnicodeEncodeError:
                         from urllib.parse import quote as url_quote
-                        encoded_filename = url_quote(original_filename)
+                        # 只使用 filename* 格式，浏览器会自动解码为中文
+                        encoded_filename = url_quote(original_filename.encode('utf-8'))
                         response.headers["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
                     response.headers["Content-Type"] = "application/octet-stream"
                     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -345,22 +346,17 @@ def process_file():
                 response.headers['Content-Type'] = 'application/zip'
                 
                 # 构建符合 RFC 6266 的 Content-Disposition 头
-                # 同时提供 ASCII 回退文件名和 UTF-8 编码文件名
+                # 使用 RFC 2231 格式，支持中文文件名
                 try:
                     # 尝试编码为 ASCII
                     safe_filename.encode('ascii')
                     # 如果成功，使用简单格式
                     response.headers['Content-Disposition'] = f'attachment; filename="{safe_filename}"'
                 except UnicodeEncodeError:
-                    # 包含非 ASCII 字符，使用双格式
-                    # filename 使用 ASCII 安全的回退名称
-                    ascii_filename = f"output_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
-                    # filename* 使用 RFC 2231 格式的 UTF-8 编码
-                    encoded_filename = quote(safe_filename)
-                    response.headers['Content-Disposition'] = (
-                        f'attachment; filename="{ascii_filename}"; '
-                        f"filename*=UTF-8''{encoded_filename}"
-                    )
+                    # 包含非 ASCII 字符（如中文），只使用 filename* 格式
+                    # 使用 RFC 2231 格式的 UTF-8 编码，浏览器会自动解码为中文
+                    encoded_filename = quote(safe_filename.encode('utf-8'))
+                    response.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_filename}"
                 
                 return response
             except Exception as e:

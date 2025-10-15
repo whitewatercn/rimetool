@@ -109,12 +109,16 @@ def main(output_files=None, is_web=False):
     if not os.path.exists(args.output_path):
         os.makedirs(args.output_path)
     os.makedirs(args.output_path, exist_ok=True)
+    
+    # 获取 jieba_dict 参数（如果有）
+    jieba_dict = getattr(args, 'jieba_dict', None)
+    
     if args.tool == 'vcf':
         name = vcf.main(args.input_path, args.output_path, is_web)
     elif args.tool in ['simple-english', 'se']:
         name = simple_english.main(args.input_path, args.output_path, is_web)
     elif args.tool in ['simple-chinese', 'sc']:
-        name = simple_chinese.main(args.input_path, args.output_path, is_web)
+        name = simple_chinese.main(args.input_path, args.output_path, is_web, jieba_dict)
     elif args.tool == 'tosougou':
         name = tosougou.main(args.input_path, args.output_path, is_web)
 

@@ -7,6 +7,7 @@ import json
 import zipfile  # 确保在顶部导入
 import shutil
 import glob  # 用于日志文件管理
+from urllib.parse import quote  # 用于URL编码文件名
 from flask_cors import CORS  # 导入 CORS
 from datetime import datetime, time
 from io import BytesIO
@@ -279,29 +280,26 @@ def process_file():
                 logger.info(f"返回单个文件: {output_file}, 大小: {os.path.getsize(output_file)} 字节")
                 # 使用Flask的send_file函数而不是send_from_directory来确保正确下载
                 try:
-                    # 创建一个仅包含 latin-1 编码的文件名
-                    safe_filename = os.path.basename(output_file)
-                    # 如果文件名包含非 latin-1 编码字符，使用时间戳生成一个安全的文件名
-                    # 这是由于 Anaconda\Lib\http\server.py 默认使用 latin-1 编码
-                    try:
-                        safe_filename.encode('latin-1')
-                    except UnicodeEncodeError:
-                        # 提取扩展名
-                        _, ext = os.path.splitext(safe_filename)
-                        # 生成基于时间戳的安全文件名
-                        safe_filename = f"output_{datetime.now().strftime('%Y%m%d_%H%M%S')}{ext}"
-                        logger.info(f"使用安全文件名: {safe_filename}")
+                    # 获取原始文件名
+                    original_filename = os.path.basename(output_file)
                     
                     response = send_file(
                         output_file,
                         as_attachment=True,
-                        download_name=safe_filename,
+                        download_name=original_filename,
                         mimetype='application/octet-stream'
                     )
-                    # 添加额外的响应头，强制浏览器下载
-                    response.headers["Content-Disposition"] = f"attachment; filename={safe_filename}"
+                    # 设置文件下载的响应头
+                    try:
+                        original_filename.encode('ascii')
+                        response.headers["Content-Disposition"] = f'attachment; filename="{original_filename}"'
+                    except UnicodeEncodeError:
+                        from urllib.parse import quote as url_quote
+                        encoded_filename = url_quote(original_filename)
+                        response.headers["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
                     response.headers["Content-Type"] = "application/octet-stream"
                     response.headers["X-Content-Type-Options"] = "nosniff"
+                    logger.info(f"返回文件: {original_filename}")
                     return response
                 except Exception as e:
                     logger.error(f"返回文件失败: {str(e)}\n{traceback.format_exc()}")
@@ -324,22 +322,46 @@ def process_file():
                         else:
                             logger.warning(f"要打包的文件不存在: {file_path}")
                 
-                memory_file.seek(0)
-                zip_data = memory_file.getvalue()
-                logger.info(f"创建的ZIP文件大小: {len(zip_data)} 字节")
+                # 获取ZIP文件大小（在seek之前）
+                zip_size = memory_file.tell()
+                logger.info(f"创建的ZIP文件大小: {zip_size} 字节")
                 
-                # 使用输入文件的基础名称（不含扩展名）生成ZIP文件名
+                # 重置指针到文件开头
+                memory_file.seek(0)
+                
+                # 使用与输出文件一致的命名格式生成ZIP文件名
                 if input_path:
                     base_name = os.path.splitext(os.path.basename(input_path))[0]
-                    safe_filename = f"{base_name}_{tool or 'output'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+                    current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                    safe_filename = f"{base_name}_simple_chinese_output_{current_time}.zip"
                 else:
-                    safe_filename = f"{tool or 'output'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+                    current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                    safe_filename = f"simple_chinese_output_{current_time}.zip"
                 
-                response = make_response(zip_data)
-                response.headers['Content-Type'] = 'application/octet-stream'
-                response.headers['Content-Disposition'] = f'attachment; filename={safe_filename}'
-                response.headers["X-Content-Type-Options"] = "nosniff"
-                logger.info("返回ZIP文件")
+                logger.info(f"返回ZIP文件: {safe_filename}")
+                
+                # 手动构建响应，同时提供 filename 和 filename* 以支持各种浏览器
+                response = make_response(memory_file.getvalue())
+                response.headers['Content-Type'] = 'application/zip'
+                
+                # 构建符合 RFC 6266 的 Content-Disposition 头
+                # 同时提供 ASCII 回退文件名和 UTF-8 编码文件名
+                try:
+                    # 尝试编码为 ASCII
+                    safe_filename.encode('ascii')
+                    # 如果成功，使用简单格式
+                    response.headers['Content-Disposition'] = f'attachment; filename="{safe_filename}"'
+                except UnicodeEncodeError:
+                    # 包含非 ASCII 字符，使用双格式
+                    # filename 使用 ASCII 安全的回退名称
+                    ascii_filename = f"output_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+                    # filename* 使用 RFC 2231 格式的 UTF-8 编码
+                    encoded_filename = quote(safe_filename)
+                    response.headers['Content-Disposition'] = (
+                        f'attachment; filename="{ascii_filename}"; '
+                        f"filename*=UTF-8''{encoded_filename}"
+                    )
+                
                 return response
             except Exception as e:
                 logger.error(f"创建ZIP文件失败: {str(e)}\n{traceback.format_exc()}")

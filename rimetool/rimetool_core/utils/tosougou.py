@@ -1,7 +1,7 @@
 from datetime import datetime
 import re
 import os
-from .encoding_test import detect_file_encoding
+from .common import detect_file_encoding
 
 def main(input_file, output_path, is_web=False):
 	encoding = detect_file_encoding(input_file)

@@ -318,14 +318,8 @@ def process_file():
                     for file_path in output_file:
                         if os.path.exists(file_path):
                             logger.info(f"添加文件到ZIP: {file_path}, 大小: {os.path.getsize(file_path)} 字节")
-                            # 使用ASCII安全的归档名
+                            # 直接使用原始文件名（支持 UTF-8）
                             filename = os.path.basename(file_path)
-                            try:
-                                filename.encode('latin-1')
-                            except UnicodeEncodeError:
-                                # 如果包含非ASCII字符，使用简单名称
-                                _, ext = os.path.splitext(filename)
-                                filename = f"file_{output_file.index(file_path)}{ext}"
                             zf.write(file_path, filename)
                         else:
                             logger.warning(f"要打包的文件不存在: {file_path}")
@@ -334,8 +328,12 @@ def process_file():
                 zip_data = memory_file.getvalue()
                 logger.info(f"创建的ZIP文件大小: {len(zip_data)} 字节")
                 
-                # 使用ASCII安全的文件名
-                safe_filename = f"{tool or 'output'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+                # 使用输入文件的基础名称（不含扩展名）生成ZIP文件名
+                if input_path:
+                    base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    safe_filename = f"{base_name}_{tool or 'output'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+                else:
+                    safe_filename = f"{tool or 'output'}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
                 
                 response = make_response(zip_data)
                 response.headers['Content-Type'] = 'application/octet-stream'

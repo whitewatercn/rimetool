@@ -333,15 +333,39 @@
                             const contentDisposition = response.headers.get('Content-Disposition');
                             let filename = '';
                             
+                            // 调试：打印响应头信息
+                            log(`Content-Disposition: ${contentDisposition}`, 'info');
+                            
                             if (contentDisposition) {
-                                // 使用正则表达式从Content-Disposition中提取文件名
-                                const matches = /filename=(.+)/.exec(contentDisposition);
-                                if (matches && matches[1]) {
-                                    filename = matches[1];
-                                    log(`从响应头获取到文件名: ${filename}`, 'info');
+                                // 优先解析 RFC 2231 格式的 filename* (支持UTF-8编码的中文文件名)
+                                const filenameStarMatch = /filename\*=UTF-8''([^;]+)/i.exec(contentDisposition);
+                                if (filenameStarMatch && filenameStarMatch[1]) {
+                                    // URL解码，将 %E8%84%89 这样的编码转换为中文
+                                    filename = decodeURIComponent(filenameStarMatch[1].trim());
+                                    log(`✓ 成功提取文件名: ${filename}`, 'success');
                                 } else {
-                                    log('无法从Content-Disposition中提取文件名', 'warning');
+                                    // 标准的 filename= 格式（可能包含在引号中）
+                                    const filenameMatch = /filename="?([^";]+)"?/i.exec(contentDisposition);
+                                    if (filenameMatch && filenameMatch[1]) {
+                                        filename = filenameMatch[1].trim();
+                                        // 尝试URL解码
+                                        try {
+                                            const decoded = decodeURIComponent(filename);
+                                            if (decoded !== filename) {
+                                                filename = decoded;
+                                                log(`✓ 成功提取并解码文件名: ${filename}`, 'success');
+                                            } else {
+                                                log(`✓ 成功提取文件名: ${filename}`, 'success');
+                                            }
+                                        } catch (e) {
+                                            log(`✓ 成功提取文件名(解码失败，使用原值): ${filename}`, 'success');
+                                        }
+                                    } else {
+                                        log('✗ 无法从Content-Disposition中提取文件名', 'warning');
+                                    }
                                 }
+                            } else {
+                                log('✗ Content-Disposition头不存在', 'warning');
                             }
 
                             // 如果没有成功获取文件名，使用时间戳生成文件名

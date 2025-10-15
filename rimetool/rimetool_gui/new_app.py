@@ -67,9 +67,9 @@ template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templat
 static_dir = template_dir  # 将static也指向templates目录
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
-# 启用 CORS
+# 启用 CORS，并暴露Content-Disposition头供前端JavaScript访问
 # CORS(app, origins="http://localhost:5500")  # 允许来自 http://localhost:5500 的请求
-CORS(app, origins="*") 
+CORS(app, origins="*", expose_headers=["Content-Disposition"]) 
 
 # 配置详细的日志
 # 从环境变量获取日志目录，如果没有设置则使用默认位置
@@ -289,18 +289,26 @@ def process_file():
                         download_name=original_filename,
                         mimetype='application/octet-stream'
                     )
-                    # 设置文件下载的响应头，支持中文文件名
+                    # 设置Content-Disposition，兼容所有浏览器
+                    # 参考: https://www.cnblogs.com/PengZhao-Mr/p/18489371
                     try:
+                        # 检查文件名是否只包含ASCII字符
                         original_filename.encode('ascii')
                         response.headers["Content-Disposition"] = f'attachment; filename="{original_filename}"'
+                        logger.info(f"文件名使用ASCII编码: {original_filename}")
                     except UnicodeEncodeError:
-                        from urllib.parse import quote as url_quote
-                        # 只使用 filename* 格式，浏览器会自动解码为中文
-                        encoded_filename = url_quote(original_filename.encode('utf-8'))
+                        # 包含中文，使用RFC 2231标准格式
+                        # filename*=UTF-8''编码后的文件名
+                        encoded_filename = quote(original_filename)
                         response.headers["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
+                        logger.info(f"设置UTF-8编码文件名: {encoded_filename}")
+                    
                     response.headers["Content-Type"] = "application/octet-stream"
                     response.headers["X-Content-Type-Options"] = "nosniff"
+                    # 确保前端JavaScript可以访问Content-Disposition头
+                    response.headers["Access-Control-Expose-Headers"] = "Content-Disposition"
                     logger.info(f"返回文件: {original_filename}")
+                    logger.info(f"Content-Disposition: {response.headers.get('Content-Disposition')}")
                     return response
                 except Exception as e:
                     logger.error(f"返回文件失败: {str(e)}\n{traceback.format_exc()}")
@@ -341,22 +349,26 @@ def process_file():
                 
                 logger.info(f"返回ZIP文件: {safe_filename}")
                 
-                # 手动构建响应，同时提供 filename 和 filename* 以支持各种浏览器
+                # 手动构建响应
                 response = make_response(memory_file.getvalue())
                 response.headers['Content-Type'] = 'application/zip'
                 
-                # 构建符合 RFC 6266 的 Content-Disposition 头
-                # 使用 RFC 2231 格式，支持中文文件名
+                # 设置Content-Disposition，使用双格式兼容所有浏览器
                 try:
-                    # 尝试编码为 ASCII
+                    # 检查文件名是否只包含ASCII字符
                     safe_filename.encode('ascii')
-                    # 如果成功，使用简单格式
                     response.headers['Content-Disposition'] = f'attachment; filename="{safe_filename}"'
+                    logger.info(f"文件名使用ASCII编码: {safe_filename}")
                 except UnicodeEncodeError:
-                    # 包含非 ASCII 字符（如中文），只使用 filename* 格式
-                    # 使用 RFC 2231 格式的 UTF-8 编码，浏览器会自动解码为中文
-                    encoded_filename = quote(safe_filename.encode('utf-8'))
+                    # 包含中文，使用RFC 2231标准格式
+                    # filename*=UTF-8''编码后的文件名
+                    encoded_filename = quote(safe_filename)
                     response.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoded_filename}"
+                    logger.info(f"设置UTF-8编码文件名: {encoded_filename}")
+                
+                # 确保前端JavaScript可以访问Content-Disposition头
+                response.headers['Access-Control-Expose-Headers'] = 'Content-Disposition'
+                logger.info(f"Content-Disposition已设置: {response.headers.get('Content-Disposition')}")
                 
                 return response
             except Exception as e:

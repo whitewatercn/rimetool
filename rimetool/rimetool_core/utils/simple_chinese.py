@@ -3,7 +3,7 @@ import re
 import jieba
 from pypinyin import lazy_pinyin
 from datetime import datetime
-from .encoding_test import detect_file_encoding
+from .common import detect_file_encoding
 from .roman_to_chinese import roman_to_chinese
 
 def contains_chinese(text):
@@ -13,7 +13,7 @@ def contains_chinese(text):
 
 
 def main(input_file, output_path, is_web=False, jieba_dict=None):
-	# 确保文件编码正确读入，并在输出时转为gbk
+	# 确保文件编码正确读入
 	encoding = detect_file_encoding(input_file)
 	
 	# 只根据main参数jieba_dict加载自定义词库

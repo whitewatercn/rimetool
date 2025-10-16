@@ -136,9 +136,11 @@ if parent_dir not in sys.path:
 try:
     from rimetool.main import main_with_args as rimetool_main
     logger.info("成功导入 rimetool_main")
-except Exception:
-    logger.error("导入 rimetool.main:main_with_args 失败，请确认已正确安装并在同一环境中运行。\n" + traceback.format_exc())
-    # 直接抛出异常，避免运行时隐藏问题
+except ImportError as e:
+    logger.error(f"导入 rimetool.main:main_with_args 失败（ImportError），请确认已正确安装并在同一环境中运行。\n{str(e)}\n{traceback.format_exc()}")
+    raise
+except Exception as e:
+    logger.error(f"导入 rimetool.main:main_with_args 时发生非导入错误: {str(e)}\n{traceback.format_exc()}")
     raise
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
